@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Your Custom T-Shirt</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .preview { width: 100%; height: 300px; object-fit: contain; }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <h2 class="text-center mb-4">Order Your Custom T-Shirt</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <img id="tshirtPreview" class="preview" src="https://via.placeholder.com/400" alt="T-Shirt Preview"/>
+        <div id="textOnTshirt" style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; font-weight: bold;"></div>
+      </div>
+      <div class="col-md-6">
+        <input type="text" id="customText" class="form-control mb-3" placeholder="Enter Text for T-Shirt" oninput="updateText()" />
+        <input type="file" class="form-control mb-3" accept="image/*" onchange="uploadImage(event)" />
+        <input type="color" class="form-control form-control-color mb-3" onchange="changeBgColor(event)" />
+        
+        <h5>Customer Info</h5>
+        <input type="text" id="customerName" class="form-control mb-3" placeholder="Your Name" />
+        <input type="text" id="mobileNumber" class="form-control mb-3" placeholder="Mobile Number" />
+        <textarea id="address" class="form-control mb-3" placeholder="Your Address" rows="3"></textarea>
+        
+        <button class="btn btn-success" onclick="saveOrder()">Save Order</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let previewImage = document.getElementById("tshirtPreview");
+    let textOnTshirt = document.getElementById("textOnTshirt");
+    let uploadedImage = null;
+
+    // Update the text on the t-shirt
+    function updateText() {
+      textOnTshirt.innerText = document.getElementById("customText").value;
+    }
+
+    // Upload the image to the t-shirt
+    function uploadImage(event) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedImage = e.target.result;
+        previewImage.src = uploadedImage;
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // Change background color of the t-shirt
+    function changeBgColor(e) {
+      previewImage.style.backgroundColor = e.target.value;
+    }
+
+    // Generate unique Order ID
+    function generateOrderID() {
+      return "ORD" + Math.floor(100000 + Math.random() * 900000);
+    }
+
+    // Save order to Firestore
+    function saveOrder() {
+      const name = document.getElementById("customerName").value.trim();
+      const mobile = document.getElementById("mobileNumber").value.trim();
+      const address = document.getElementById("address").value.trim();
+
+      if (!name || !mobile || !address) {
+        alert("Please fill all the details.");
+        return;
+      }
+
+      const order = {
+        orderID: generateOrderID(),
+        text: document.getElementById("customText").value,
+        image: uploadedImage || "",
+        bgColor: previewImage.style.backgroundColor || "#ffffff",
+        name,
+        mobile,
+        address,
+        timestamp: new Date().toLocaleString()
+      };
+
+      // Save to Firestore
+      db.collection("orders").add(order)
+        .then(() => {
+          alert(`Order placed successfully!\nOrder ID: ${order.orderID}`);
+          // Optionally, redirect to a payment page
+          window.location.href = "https://your-payment-page.com";
+        })
+        .catch((error) => {
+          console.error("Error placing order: ", error);
+          alert("There was an error placing the order. Please try again.");
+        });
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
