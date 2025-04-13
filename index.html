@@ -89,8 +89,8 @@
       db.collection("orders").add(order)
         .then(() => {
           alert(`Order placed successfully!\nOrder ID: ${order.orderID}`);
-          // Optionally, redirect to a payment page
-          window.location.href = "https://your-payment-page.com";
+          // After saving order, redirect to payment page
+          window.location.href = "https://your-payment-page.com";  // Replace with actual payment URL
         })
         .catch((error) => {
           console.error("Error placing order: ", error);
@@ -102,3 +102,4 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
